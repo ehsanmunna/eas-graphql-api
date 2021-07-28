@@ -1,2 +1,2 @@
 # eas-graphql-api
-A new graphql api service with existing service.
+A new graphql api service from existing RESTAPI service.
