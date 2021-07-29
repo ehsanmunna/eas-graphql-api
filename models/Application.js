@@ -46,3 +46,4 @@ module.exports = function (sequelize, DataTypes) {
         tableName: table_Application
     });
 };
+
