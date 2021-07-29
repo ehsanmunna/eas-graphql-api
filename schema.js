@@ -1,11 +1,14 @@
 const graphql = require('graphql');
 const {
     GraphQLObjectType,
+    GraphQLInputObjectType,
     GraphQLString,
     GraphQLList,
     GraphQLInt, GraphQLBoolean,
     GraphQLSchema
 } = graphql;
+const graphlSequelize = require('graphql-sequelize');
+const ApplicationModel = require('./models/Application');
 const exclude = (obj, keys) => {
     var target = {};
     for (var i in obj) {
@@ -115,22 +118,29 @@ const RootQuery = new GraphQLObjectType({
             }
         },
         application: {
-            type: typeApplication,
+            type: new GraphQLInputObjectType(applicationFields),
+            // type: new GraphQLInputObjectType({
+            //     name: 'Application',
+            //     fields: () => (applicationFields)
+            // }),
             args: {
                 id: { type: GraphQLString }
             },
-            async resolve(parent, args) {
-                return await applicationService.getById(args.id);
-            }
+            resolve: graphlSequelize.resolver(ApplicationModel)
+            // async resolve(parent, args) {
+            //     // return await applicationService.getById(args.id);
+            //     return await ApplicationModel.findByPk(args.id);
+            // }
         },
         applications: {
-            type: new GraphQLObjectType({
-                name: 'ApplicationP',
-                fields: () => ({
-                    data: {type: new GraphQLList(typeApplication)},
-                    count: {type: GraphQLInt}
-                })
-            }),
+            type: new GraphQLObjectType(applicationFields),
+            // type: new GraphQLObjectType({
+            //     name: 'ApplicationP',
+            //     fields: () => ({
+            //         data: {type: new GraphQLList(typeApplication)},
+            //         count: {type: GraphQLInt}
+            //     })
+            // }),
             args: {
                 id: { type: GraphQLString },
                 employeeId: { type: GraphQLString },
@@ -139,6 +149,7 @@ const RootQuery = new GraphQLObjectType({
                 ...paginationInputFields
             },
             async resolve(parent, args) {
+                // return await ApplicationModel.findAll();
                 const _query = exclude(args, ['pageNumber', 'pageSize'])
                 const res = await applicationService.getListPagging(args.pageNumber, args.pageSize, _query);
                 return res;

@@ -1,6 +1,7 @@
 const express = require('express');
 const eg = require('express-graphql');
-const schema = require('./schema');
+// const schema = require('./schema');
+const schema = require('./schema-sequilize');
 
 const app = express();
 
