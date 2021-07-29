@@ -9,7 +9,7 @@ const {
     GraphQLInt, GraphQLBoolean,
     GraphQLSchema
 } = graphql;
-// const graphlSequelize = require('graphql-sequelize');
+const graphlSequelize = require('graphql-sequelize');
 const ApplicationTypeModel = require('./models/ApplicationType')(sequelizeDb, Sequelize);
 const typeApplicationType = new GraphQLObjectType({
     name: 'ApplicationType',
@@ -32,18 +32,14 @@ const RootQuery = new GraphQLObjectType({
             args: {
                 id: { type: GraphQLString }
             },
-            async resolve(parent, args) {
-                return await ApplicationTypeModel.findByPk(args.id);
-            }
+            resolve: graphlSequelize.resolver(ApplicationTypeModel)
         },
         applicationTypes: {
             type: new GraphQLList(typeApplicationType),
             // args: {
             //     id: { type: GraphQLString }
             // },
-            async resolve(parent, args) {
-                return await ApplicationTypeModel.findAll();
-            }
+            resolve: graphlSequelize.resolver(ApplicationTypeModel)
         }
         
     }
