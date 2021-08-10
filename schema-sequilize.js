@@ -13,6 +13,7 @@ const graphlSequelize = require('graphql-sequelize');
 const ApplicationTypeModel = require('./models/ApplicationType')(sequelizeDb, Sequelize);
 const ApplicationStatusModel = require('./models/ApplicationStatus')(sequelizeDb, Sequelize);
 const ApplicationModel = require('./models/Application')(sequelizeDb, Sequelize);
+const ApplicationConcernModel = require('./models/ApplicationConcerns')(sequelizeDb, Sequelize);
 
 /**
  * association
@@ -48,7 +49,19 @@ const typeApplicationStatus = new GraphQLObjectType({
         statusName: { type: GraphQLString }
     })
 })
-
+const ApplicationConcernModel = new GraphQLObjectType({
+    name: 'ApplicationConcern',
+    fields: () => ({
+        id: { type: GraphQLString },
+        applicationId: { type: GraphQLString },
+        concernedEmployeeId: { type: GraphQLString },
+        applicationStatusId: { type: typeApplicationType },
+        remarks: { type: GraphQLString },
+        orderNo: { type: GraphQLString },
+        applicationStatus: { type: typeApplicationStatus },
+        ...createdUpdatedFields
+    })
+})
 const Application = new GraphQLObjectType({
     name: 'Application',
     fields: () => ({
@@ -118,6 +131,37 @@ const RootQuery = new GraphQLObjectType({
                 before: (findOptions, args, context) => {
                     findOptions.where = args
                     findOptions.include = [ApplicationStatusModel, ApplicationTypeModel]
+                    return findOptions;
+                  }
+            })
+        },
+        applicationConcern: {
+            type: ApplicationConcernModel,
+            args: {
+                id: { type: GraphQLString }
+            },
+            resolve: graphlSequelize.resolver(ApplicationConcernModel, {
+                before: (findOptions, args, context) => {
+                    findOptions.include = [ApplicationStatusModel, ApplicationTypeModel]
+                    return findOptions;
+                  }
+            })
+        },
+        applicationConcerns: {
+            type: ApplicationConcernModel,
+            args: {
+                id: { type: GraphQLString },
+                applicationId: { type: GraphQLString },
+                concernedEmployeeId: { type: GraphQLString },
+                applicationStatusId: { type: typeApplicationType },
+                remarks: { type: GraphQLString },
+                orderNo: { type: GraphQLString },
+                applicationStatus: { type: typeApplicationStatus },
+                ...createdUpdatedFields
+            },
+            resolve: graphlSequelize.resolver(ApplicationConcernModel, {
+                before: (findOptions, args, context) => {
+                    findOptions.include = [ApplicationModel, ApplicationStatusModel]
                     return findOptions;
                   }
             })
